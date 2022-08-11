@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"example/internal"
 	"fmt"
 	"log"
@@ -25,11 +24,12 @@ func (s *GreetServer) Greet(
 	log.Println("Request headers: ", req.Header())
 	log.Println(req.Header().Get("Acme-Tenant-Id"))
 
-	if err := ctx.Err(); err != nil {
-		return nil, err // automatically coded correctly
-	}
-	if err := validateGreetRequest(req.Msg); err != nil {
+	if err := req.Msg.ValidateAll(); err != nil {
 		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	if err := ctx.Err(); err != nil {
+		return nil, err
 	}
 	greeting, err := doGreetWork(ctx, req.Msg)
 	if err != nil {
@@ -59,13 +59,6 @@ func main() {
 		// Use h2c, so we can serve HTTP/2 without TLS.
 		h2c.NewHandler(mux, &http2.Server{}),
 	)
-}
-
-func validateGreetRequest(req *greetv1.GreetRequest) error {
-	if req.Name != "Jane" {
-		return errors.New("名前違うよ")
-	}
-	return nil
 }
 
 func doGreetWork(ctx context.Context, req *greetv1.GreetRequest) (string, error) {

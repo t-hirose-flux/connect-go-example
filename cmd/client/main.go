@@ -21,7 +21,7 @@ func main() {
 		"http://localhost:8080",
 		interceptors,
 	)
-	req := connect.NewRequest(&greetv1.GreetRequest{Name: "Jane"})
+	req := connect.NewRequest(&greetv1.GreetRequest{Name: "Joker"})
 	req.Header().Set("Acme-Tenant-Id", "1234")
 	res, err := client.Greet(
 		context.Background(),
